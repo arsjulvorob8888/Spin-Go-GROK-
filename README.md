@@ -1,15 +1,11 @@
 # Spin Drill
 
-GTO-тренажёр **Spin & Go 15bb BTN** (3-max).
+GTO-тренажёр Spin & Go 15bb BTN.
 
-Цвета как в GTO Wizard:
+Сайт не откроется, пока не включить GitHub Pages.
 
-- бордовый — All-in 15
-- красный — Raise 2
-- синий — Fold
-
-Откройте `index.html` в браузере или включите GitHub Pages:
-
-https://arsjulvorob8888.github.io/Spin-Go-GROK-/
-
-Settings → Pages → Deploy from a branch → `main` / root.
+1. Откройте https://github.com/arsjulvorob8888/Spin-Go-GROK-/settings/pages
+2. Build and deployment → Source: **GitHub Actions**
+   либо Deploy from a branch → Branch **main** / folder **/ (root)** → Save
+3. Подождите 1–2 минуты
+4. Откройте https://arsjulvorob8888.github.io/Spin-Go-GROK-/
