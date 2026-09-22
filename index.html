@@ -95,6 +95,22 @@
     .combo-notes { display: grid; gap: 10px; margin-top: 16px; }
     @media (min-width: 720px) { .combo-notes { grid-template-columns: 1fr 1fr; } }
     .combo-notes div { border-left: 3px solid #e25555; padding: 8px 12px; color: var(--muted); font-size: 13px; }
+    .quiz-list { display: grid; gap: 6px; }
+    .quiz-row {
+      display: grid; grid-template-columns: 28px 1fr 88px; gap: 8px; align-items: center;
+      background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px; padding: 6px 8px;
+    }
+    .quiz-row.ok { border-color: var(--ok); }
+    .quiz-row.bad { border-color: var(--bad); }
+    .quiz-row input {
+      width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--fg);
+      border-radius: 8px; padding: 8px 6px; font-family: "IBM Plex Mono", monospace; font-size: 13px;
+    }
+    .quiz-row input:disabled { opacity: .85; }
+    .primary {
+      width: 100%; border: 0; border-radius: 10px; padding: 12px; margin-top: 10px;
+      background: var(--fg); color: var(--bg); font-weight: 600;
+    }
   </style>
 </head>
 <body>
