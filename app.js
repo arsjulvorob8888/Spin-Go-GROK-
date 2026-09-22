@@ -219,16 +219,16 @@ function actionButtons(){
 }
 
 const COMBOS = [
-  {n:1, name:"Роял-флеш", en:"Royal Flush", text:"Пять старших карт от 10 до туза одной масти. Абсолютно непобедимая комбинация.", cards:[{r:"A",s:"s"},{r:"K",s:"s"},{r:"Q",s:"s"},{r:"J",s:"s"},{r:"T",s:"s"}]},
-  {n:2, name:"Стрит-флеш", en:"Straight Flush", text:"Пять карт подряд одной масти. Выше та, где старшая карта больше.", cards:[{r:"9",s:"h"},{r:"8",s:"h"},{r:"7",s:"h"},{r:"6",s:"h"},{r:"5",s:"h"}]},
-  {n:3, name:"Каре", en:"Four of a Kind", text:"Четыре карты одного номинала. Пятая карта — кикер, решает при равном каре.", cards:[{r:"J",s:"s"},{r:"J",s:"h"},{r:"J",s:"d"},{r:"J",s:"c"},{r:"4",s:"s",dim:true}]},
-  {n:4, name:"Фулл-хаус", en:"Full House", text:"Тройка плюс пара. Сначала сравнивают тройку, затем пару.", cards:[{r:"Q",s:"d"},{r:"Q",s:"s"},{r:"Q",s:"c"},{r:"8",s:"h"},{r:"8",s:"s"}]},
-  {n:5, name:"Флеш", en:"Flush", text:"Пять карт одной масти без последовательности. Сравнение по старшей карте.", cards:[{r:"K",s:"c"},{r:"T",s:"c"},{r:"8",s:"c"},{r:"6",s:"c"},{r:"3",s:"c"}]},
-  {n:6, name:"Стрит", en:"Straight", text:"Пять карт подряд разных мастей. Туз работает и сверху, и снизу: A-2-3-4-5.", cards:[{r:"T",s:"d"},{r:"9",s:"s"},{r:"8",s:"h"},{r:"7",s:"c"},{r:"6",s:"d"}]},
-  {n:7, name:"Сет / Тройка", en:"Three of a Kind", text:"Три карты одного номинала и две несвязанные карты.", cards:[{r:"7",s:"h"},{r:"7",s:"s"},{r:"7",s:"d"},{r:"K",s:"c",dim:true},{r:"2",s:"h",dim:true}]},
-  {n:8, name:"Две пары", en:"Two Pair", text:"Две разные пары. Решает старшая пара, затем младшая, затем кикер.", cards:[{r:"A",s:"d"},{r:"A",s:"c"},{r:"5",s:"s"},{r:"5",s:"h"},{r:"9",s:"d",dim:true}]},
-  {n:9, name:"Пара", en:"One Pair", text:"Две карты одного номинала. При равных парах спор решают кикеры.", cards:[{r:"T",s:"s"},{r:"T",s:"h"},{r:"K",s:"d",dim:true},{r:"7",s:"c",dim:true},{r:"3",s:"s",dim:true}]},
-  {n:10, name:"Старшая карта", en:"High Card", text:"Комбинации нет — играет самая старшая карта на руках.", cards:[{r:"A",s:"h"},{r:"J",s:"s",dim:true},{r:"8",s:"d",dim:true},{r:"5",s:"c",dim:true},{r:"2",s:"h",dim:true}]}
+  {n:1, name:"Роял-флеш", en:"Royal Flush", pct:"0.0032%", odds:"1 из 30 940", text:"Пять старших карт от 10 до туза одной масти. Абсолютно непобедимая комбинация.", cards:[{r:"A",s:"s"},{r:"K",s:"s"},{r:"Q",s:"s"},{r:"J",s:"s"},{r:"T",s:"s"}]},
+  {n:2, name:"Стрит-флеш", en:"Straight Flush", pct:"0.0279%", odds:"1 из 3 590", text:"Пять карт подряд одной масти. Выше та, где старшая карта больше. Без роял-флеша.", cards:[{r:"9",s:"h"},{r:"8",s:"h"},{r:"7",s:"h"},{r:"6",s:"h"},{r:"5",s:"h"}]},
+  {n:3, name:"Каре", en:"Four of a Kind", pct:"0.168%", odds:"1 из 594", text:"Четыре карты одного номинала. Пятая карта — кикер, решает при равном каре.", cards:[{r:"J",s:"s"},{r:"J",s:"h"},{r:"J",s:"d"},{r:"J",s:"c"},{r:"4",s:"s",dim:true}]},
+  {n:4, name:"Фулл-хаус", en:"Full House", pct:"2.60%", odds:"1 из 37.5", text:"Тройка плюс пара. Сначала сравнивают тройку, затем пару.", cards:[{r:"Q",s:"d"},{r:"Q",s:"s"},{r:"Q",s:"c"},{r:"8",s:"h"},{r:"8",s:"s"}]},
+  {n:5, name:"Флеш", en:"Flush", pct:"3.03%", odds:"1 из 33", text:"Пять карт одной масти без последовательности. Сравнение по старшей карте.", cards:[{r:"K",s:"c"},{r:"T",s:"c"},{r:"8",s:"c"},{r:"6",s:"c"},{r:"3",s:"c"}]},
+  {n:6, name:"Стрит", en:"Straight", pct:"4.62%", odds:"1 из 21.6", text:"Пять карт подряд разных мастей. Туз работает и сверху, и снизу: A-2-3-4-5.", cards:[{r:"T",s:"d"},{r:"9",s:"s"},{r:"8",s:"h"},{r:"7",s:"c"},{r:"6",s:"d"}]},
+  {n:7, name:"Сет / Тройка", en:"Three of a Kind", pct:"4.83%", odds:"1 из 20.7", text:"Три карты одного номинала и две несвязанные карты.", cards:[{r:"7",s:"h"},{r:"7",s:"s"},{r:"7",s:"d"},{r:"K",s:"c",dim:true},{r:"2",s:"h",dim:true}]},
+  {n:8, name:"Две пары", en:"Two Pair", pct:"23.5%", odds:"1 из 4.3", text:"Две разные пары. Решает старшая пара, затем младшая, затем кикер.", cards:[{r:"A",s:"d"},{r:"A",s:"c"},{r:"5",s:"s"},{r:"5",s:"h"},{r:"9",s:"d",dim:true}]},
+  {n:9, name:"Пара", en:"One Pair", pct:"43.8%", odds:"1 из 2.3", text:"Две карты одного номинала. При равных парах спор решают кикеры.", cards:[{r:"T",s:"s"},{r:"T",s:"h"},{r:"K",s:"d",dim:true},{r:"7",s:"c",dim:true},{r:"3",s:"s",dim:true}]},
+  {n:10, name:"Старшая карта", en:"High Card", pct:"17.4%", odds:"1 из 5.7", text:"Комбинации нет — играет самая старшая карта на руках.", cards:[{r:"A",s:"h"},{r:"J",s:"s",dim:true},{r:"8",s:"d",dim:true},{r:"5",s:"c",dim:true},{r:"2",s:"h",dim:true}]}
 ];
 function miniCard(c){
   const red = c.s==="h"||c.s==="d";
@@ -241,21 +241,21 @@ function renderHands(){
     <div class="n">${x.n}</div>
     <div><h3>${x.name}<small>${x.en}</small></h3></div>
     <div class="mini-cards">${x.cards.map(miniCard).join("")}</div>
-    <p>${x.text}</p>
+    <p>${x.text}<br><strong style="color:var(--fg)">${x.pct}</strong> <span class="muted">· ${x.odds} · 2+5 карт</span></p>
   </article>`).join("");
   document.getElementById("view-hands").innerHTML = `
     <div class="panel" style="grid-column:1/-1">
       <div class="head-row">
         <div>
-          <div class="muted" style="font-family:IBM Plex Mono,monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase">Texas Hold'em</div>
+          <div class="muted" style="font-family:IBM Plex Mono,monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase">Texas Hold'em · 7 cards</div>
           <strong>Комбинации по старшинству</strong>
-          <p class="muted" style="margin:4px 0 0">От самой сильной к самой слабой — с примерами</p>
+          <p class="muted" style="margin:4px 0 0">Вероятность — лучшие 5 из 7 карт (2 свои + 5 на борде). Всего 133 784 560 раздач.</p>
         </div>
       </div>
       <div class="combo-list">${rows}</div>
       <div class="combo-notes">
         <div>Как сравнивать: сначала ранг комбинации, и только при равных рангах — старшинство карт внутри неё, затем кикер.</div>
-        <div>Масти равны: ♦ ♥ ♣ ♠ не имеют старшинства. Комбинация всегда из 5 лучших карт из семи.</div>
+        <div>Масти равны: ♦ ♥ ♣ ♠ не имеют старшинства. Частоты — Wikipedia, 7-card poker hands.</div>
       </div>
     </div>`;
 }
