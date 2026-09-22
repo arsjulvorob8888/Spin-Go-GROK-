@@ -140,6 +140,7 @@ let selected = "AA";
 let liveHand = null;
 let tab = "strategy";
 let includeFolds = true;
+let hideRange = localStorage.getItem("spin-hide-range")==="1";
 let session = {total:0,correct:0,streak:0};
 let current = null, cards = null, locked = false, lastGrade = null;
 let quiz = null;
@@ -354,11 +355,17 @@ function renderPractice(){
       ${actionButtons()}
       ${locked?`<div style="margin-top:14px">${mixBars(current)}<button class="ghost" id="next">Следующая рука</button></div>`:""}
       <button class="ghost" id="quiz-now">Квиз вероятностей</button>`;
+  document.getElementById("view-practice").classList.toggle("blind", hideRange);
   document.getElementById("view-practice").innerHTML = `
     <div class="panel">
       ${spotPills()}
-      <div class="head-row" style="margin-top:12px"><strong>${spot().title}</strong>${legend()}</div>
-      ${gridHtml("strategy", liveHand)}
+      <div class="head-row" style="margin-top:12px">
+        <strong>${spot().title}</strong>
+        <label class="muted"><input type="checkbox" id="hide-range" ${hideRange?"checked":""}/> Скрыть рендж</label>
+      </div>
+      ${hideRange
+        ? `<p class="muted" style="margin:0">Таблица диапазона скрыта. Снимите галочку, чтобы открыть.</p>`
+        : `${legend()}${gridHtml("strategy", liveHand)}`}
     </div>
     <div class="panel">${right}</div>`;
 }
@@ -414,6 +421,11 @@ document.addEventListener("click", e=>{
 });
 document.addEventListener("change", e=>{
   if(e.target.id==="folds") includeFolds = e.target.checked;
+  if(e.target.id==="hide-range"){
+    hideRange = e.target.checked;
+    localStorage.setItem("spin-hide-range", hideRange?"1":"0");
+    render();
+  }
 });
 document.addEventListener("keydown", e=>{
   if(tab!=="practice" || quiz) return;
