@@ -32,42 +32,35 @@ const BTN_MIX = {
 };
 const RANGE_BTN = Object.assign({}, fill(BTN_RAISE,"raise"), fill(BTN_ALLIN,"allin"), pack(BTN_MIX));
 
-const SBF_RAISE = ["AA","AKs","AQs","ATs","A9s","A8s","A6s","A5s","KK","KQs","KJs","KTs","K9s","K8s","QQ","QTs","Q9s","Q8s","Q3s","Q2s","JJ","JTo","TT","T9s","99","98s","88","AQo","AJo","ATo","A9o","A8o","A7o","A6o","A5o","A4o","A3o"];
-const SBF_ALLIN = ["A3s","A2s","KJo","J6s","44","33","22"];
-const SBF_CALL = ["K3s","K2s","J2s","T3s","T2s","94s","93s","K3o","K2o"];
+const SBF_RAISE = ["AA","AKs","KK","KQs","KJs","KTs","K9s","QQ","JJ","JTs","J3s","KTo","TT","T9s","Q9o","K8o","K7o","K6o","K5o","Q2s"];
+const SBF_ALLIN = ["A3s","A2s","AQo","AJo","ATo","A9o","A8o","A7o","A6o","A5o","A4o","A3o","A2o","KJo","QJo","T7s","97s","87s","86s","76s","44","33","22"];
+const SBF_CALL = ["ATs","A4s","K4s","K3s","K2s","Q9s","Q8s","Q7s","T2s","94s","84s","K3o","52s"];
 const SBF_MIX = {
-  AJs:{raise:70,call:30}, A7s:{raise:72,call:28}, A4s:{raise:62,call:38},
-  AKo:{raise:75,call:25}, A2o:{allin:60,raise:40},
-  KQo:{raise:80,call:20}, K7s:{raise:70,call:30}, K6s:{raise:65,call:35},
-  K5s:{allin:55,raise:45}, K4s:{raise:60,call:40},
-  QJs:{raise:68,call:32}, Q7s:{raise:65,call:35}, Q6s:{allin:55,raise:45},
-  Q5s:{raise:58,call:42}, Q4s:{raise:55,call:45},
-  QJo:{allin:60,raise:40},
-  JTs:{raise:70,call:30}, J9s:{raise:62,call:38}, J8s:{raise:58,call:42},
-  J7s:{raise:55,call:45}, J5s:{raise:58,call:42}, J4s:{raise:55,call:45},
-  J3s:{raise:52,call:48},
-  KTo:{raise:70,call:30}, QTo:{raise:62,call:38},
-  T8s:{raise:65,call:35}, T7s:{raise:60,call:40}, T6s:{raise:55,call:45},
-  T5s:{raise:52,call:48}, T4s:{raise:50,call:50},
-  K9o:{raise:68,call:32}, Q9o:{raise:60,call:40}, J9o:{raise:55,call:45},
-  T9o:{raise:58,call:42}, "97s":{raise:62,call:38}, "96s":{raise:55,call:45},
-  "95s":{raise:52,call:48},
-  K8o:{raise:62,call:38}, Q8o:{raise:55,call:45}, J8o:{raise:52,call:48},
-  T8o:{raise:50,call:50}, "98o":{allin:55,raise:45},
-  "87s":{raise:60,call:40}, "86s":{raise:55,call:45}, "85s":{raise:52,call:48},
-  "84s":{raise:50,call:50},
-  K7o:{raise:58,call:42}, Q7o:{raise:52,call:48}, J7o:{raise:50,call:50},
-  T7o:{fold:55,call:45}, "97o":{raise:52,call:48}, "87o":{raise:50,call:50},
-  "77":{raise:70,call:30}, "76s":{allin:55,raise:45}, "75s":{raise:55,call:45},
-  "74s":{raise:50,call:50},
-  K6o:{raise:55,call:45}, Q6o:{fold:55,call:45}, J6o:{fold:58,call:42},
-  "86o":{raise:40,call:60}, "76o":{fold:60,call:40}, "66":{raise:65,call:35},
-  "65s":{raise:58,call:42}, "64s":{raise:52,call:48},
-  K5o:{raise:55,call:45}, Q5o:{raise:50,call:50}, J5o:{fold:60,call:40},
-  "65o":{fold:62,call:38}, "55":{allin:55,raise:45},
-  "54s":{raise:60,call:40}, "53s":{raise:55,call:45}, "52s":{raise:50,call:50},
-  K4o:{raise:52,call:48}, "43s":{raise:55,call:45}, "42s":{raise:50,call:50},
-  "32s":{raise:45,call:55}
+  AQs:{raise:80,call:20}, AJs:{call:82,raise:18}, A9s:{call:63,raise:37},
+  A8s:{raise:84,call:16}, A7s:{raise:79,call:21}, A6s:{raise:78,call:22},
+  A5s:{raise:89,call:11}, AKo:{raise:42,call:44,allin:14},
+  K8s:{call:78,raise:22}, K7s:{call:68,allin:32}, K6s:{allin:62,call:38},
+  K5s:{call:67,allin:33}, KQo:{allin:51,raise:41,call:8},
+  QJs:{call:56,allin:44}, QTs:{raise:89,call:11}, Q6s:{allin:80,call:20},
+  Q5s:{call:79,raise:21}, Q4s:{raise:59,call:41}, Q3s:{call:72,raise:28},
+  J9s:{raise:79,call:21}, J8s:{call:68,allin:32}, J7s:{allin:60,call:40},
+  J6s:{call:82,raise:18}, J5s:{call:57,raise:43}, J4s:{raise:86,call:14},
+  J2s:{call:68,raise:32}, QTo:{call:54,raise:34,allin:12},
+  JTo:{allin:36,raise:36,call:28}, T8s:{allin:38,raise:37,call:25},
+  T6s:{raise:68,call:32}, T5s:{call:74,raise:26}, T4s:{call:67,raise:33},
+  T3s:{call:70,raise:30}, K9o:{raise:86,call:14}, J9o:{raise:54,call:46},
+  T9o:{allin:68,call:32}, "99":{raise:84,call:16}, "98s":{allin:52,raise:48},
+  "96s":{allin:63,call:37}, "95s":{raise:78,call:22}, "93s":{call:64,fold:36},
+  Q8o:{raise:91,call:9}, J8o:{raise:67,call:33}, T8o:{raise:64,call:36},
+  "98o":{allin:80,call:20}, "88":{raise:89,call:11}, "85s":{raise:67,call:33},
+  Q7o:{call:57,raise:43}, J7o:{call:68,raise:16,fold:16}, T7o:{call:67,raise:33},
+  "97o":{raise:50,call:50}, "87o":{allin:45,call:39,raise:16},
+  "77":{raise:66,call:34}, "75s":{call:83,raise:17}, "74s":{raise:68,call:32},
+  Q6o:{call:64,fold:36}, "86o":{fold:76,call:24}, "76o":{call:47,raise:27,fold:26},
+  "66":{raise:53,call:47}, "65s":{allin:85,call:15}, "64s":{raise:63,call:37},
+  "63s":{call:52,raise:48}, Q5o:{fold:75,call:25}, "65o":{fold:83,call:17},
+  "55":{allin:46,raise:30,call:24}, "54s":{call:79,raise:21}, "53s":{raise:75,call:25},
+  K4o:{raise:62,call:38}, "43s":{raise:70,call:30}, K2o:{fold:61,call:39}
 };
 const RANGE_SB_FOLD = Object.assign({}, fill(SBF_RAISE,"raise"), fill(SBF_ALLIN,"allin"), fill(SBF_CALL,"call"), pack(SBF_MIX));
 
