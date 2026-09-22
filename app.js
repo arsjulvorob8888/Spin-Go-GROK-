@@ -142,6 +142,7 @@ let tab = "strategy";
 let includeFolds = true;
 let session = {total:0,correct:0,streak:0};
 let current = null, cards = null, locked = false, lastGrade = null;
+let quiz = null;
 
 const SUITS = ["s","h","d","c"];
 const PIP = {
@@ -186,20 +187,26 @@ function setSpot(id){
   if(!SPOTS[id] || id===spotId) return;
   spotId = id;
   session = {total:0,correct:0,streak:0};
-  current = null; cards = null; locked = false; lastGrade = null; liveHand = null;
+  current = null; cards = null; locked = false; lastGrade = null; liveHand = null; quiz = null;
   const el = document.getElementById("hdr-spot");
   if(el) el.textContent = spot().title;
   if(tab==="practice") deal(); else render();
 }
 function deal(){
+  quiz = null;
   current = pickHand();
   cards = dealCombo(current);
   liveHand = current;
   locked = false; lastGrade=null;
   render();
 }
+function afterHand(){
+  if(quiz || !locked) return;
+  if(session.total>0 && session.total%6===0){ openQuiz(); return; }
+  deal();
+}
 function answer(a){
-  if(!current || locked) return;
+  if(quiz || !current || locked) return;
   if(!spot().actions.includes(a)) return;
   lastGrade = grade(current, a);
   locked = true;
@@ -208,7 +215,7 @@ function answer(a){
   session.total++;
   if(ok){ session.correct++; session.streak++; } else session.streak=0;
   render();
-  setTimeout(()=>{ if(locked) deal(); }, 1700);
+  setTimeout(()=>{ afterHand(); }, 1700);
 }
 function actionButtons(){
   const n = spot().actions.length;
@@ -219,17 +226,71 @@ function actionButtons(){
 }
 
 const COMBOS = [
-  {n:1, name:"Роял-флеш", en:"Royal Flush", pct:"0.0032%", odds:"1 из 30 940", text:"Пять старших карт от 10 до туза одной масти. Абсолютно непобедимая комбинация.", cards:[{r:"A",s:"s"},{r:"K",s:"s"},{r:"Q",s:"s"},{r:"J",s:"s"},{r:"T",s:"s"}]},
-  {n:2, name:"Стрит-флеш", en:"Straight Flush", pct:"0.0279%", odds:"1 из 3 590", text:"Пять карт подряд одной масти. Выше та, где старшая карта больше. Без роял-флеша.", cards:[{r:"9",s:"h"},{r:"8",s:"h"},{r:"7",s:"h"},{r:"6",s:"h"},{r:"5",s:"h"}]},
-  {n:3, name:"Каре", en:"Four of a Kind", pct:"0.168%", odds:"1 из 594", text:"Четыре карты одного номинала. Пятая карта — кикер, решает при равном каре.", cards:[{r:"J",s:"s"},{r:"J",s:"h"},{r:"J",s:"d"},{r:"J",s:"c"},{r:"4",s:"s",dim:true}]},
-  {n:4, name:"Фулл-хаус", en:"Full House", pct:"2.60%", odds:"1 из 37.5", text:"Тройка плюс пара. Сначала сравнивают тройку, затем пару.", cards:[{r:"Q",s:"d"},{r:"Q",s:"s"},{r:"Q",s:"c"},{r:"8",s:"h"},{r:"8",s:"s"}]},
-  {n:5, name:"Флеш", en:"Flush", pct:"3.03%", odds:"1 из 33", text:"Пять карт одной масти без последовательности. Сравнение по старшей карте.", cards:[{r:"K",s:"c"},{r:"T",s:"c"},{r:"8",s:"c"},{r:"6",s:"c"},{r:"3",s:"c"}]},
-  {n:6, name:"Стрит", en:"Straight", pct:"4.62%", odds:"1 из 21.6", text:"Пять карт подряд разных мастей. Туз работает и сверху, и снизу: A-2-3-4-5.", cards:[{r:"T",s:"d"},{r:"9",s:"s"},{r:"8",s:"h"},{r:"7",s:"c"},{r:"6",s:"d"}]},
-  {n:7, name:"Сет / Тройка", en:"Three of a Kind", pct:"4.83%", odds:"1 из 20.7", text:"Три карты одного номинала и две несвязанные карты.", cards:[{r:"7",s:"h"},{r:"7",s:"s"},{r:"7",s:"d"},{r:"K",s:"c",dim:true},{r:"2",s:"h",dim:true}]},
-  {n:8, name:"Две пары", en:"Two Pair", pct:"23.5%", odds:"1 из 4.3", text:"Две разные пары. Решает старшая пара, затем младшая, затем кикер.", cards:[{r:"A",s:"d"},{r:"A",s:"c"},{r:"5",s:"s"},{r:"5",s:"h"},{r:"9",s:"d",dim:true}]},
-  {n:9, name:"Пара", en:"One Pair", pct:"43.8%", odds:"1 из 2.3", text:"Две карты одного номинала. При равных парах спор решают кикеры.", cards:[{r:"T",s:"s"},{r:"T",s:"h"},{r:"K",s:"d",dim:true},{r:"7",s:"c",dim:true},{r:"3",s:"s",dim:true}]},
-  {n:10, name:"Старшая карта", en:"High Card", pct:"17.4%", odds:"1 из 5.7", text:"Комбинации нет — играет самая старшая карта на руках.", cards:[{r:"A",s:"h"},{r:"J",s:"s",dim:true},{r:"8",s:"d",dim:true},{r:"5",s:"c",dim:true},{r:"2",s:"h",dim:true}]}
+  {n:1, name:"Роял-флеш", en:"Royal Flush", val:0.0032, pct:"0.0032%", odds:"1 из 30 940", text:"Пять старших карт от 10 до туза одной масти. Абсолютно непобедимая комбинация.", cards:[{r:"A",s:"s"},{r:"K",s:"s"},{r:"Q",s:"s"},{r:"J",s:"s"},{r:"T",s:"s"}]},
+  {n:2, name:"Стрит-флеш", en:"Straight Flush", val:0.0279, pct:"0.0279%", odds:"1 из 3 590", text:"Пять карт подряд одной масти. Выше та, где старшая карта больше. Без роял-флеша.", cards:[{r:"9",s:"h"},{r:"8",s:"h"},{r:"7",s:"h"},{r:"6",s:"h"},{r:"5",s:"h"}]},
+  {n:3, name:"Каре", en:"Four of a Kind", val:0.168, pct:"0.168%", odds:"1 из 594", text:"Четыре карты одного номинала. Пятая карта — кикер, решает при равном каре.", cards:[{r:"J",s:"s"},{r:"J",s:"h"},{r:"J",s:"d"},{r:"J",s:"c"},{r:"4",s:"s",dim:true}]},
+  {n:4, name:"Фулл-хаус", en:"Full House", val:2.60, pct:"2.60%", odds:"1 из 37.5", text:"Тройка плюс пара. Сначала сравнивают тройку, затем пару.", cards:[{r:"Q",s:"d"},{r:"Q",s:"s"},{r:"Q",s:"c"},{r:"8",s:"h"},{r:"8",s:"s"}]},
+  {n:5, name:"Флеш", en:"Flush", val:3.03, pct:"3.03%", odds:"1 из 33", text:"Пять карт одной масти без последовательности. Сравнение по старшей карте.", cards:[{r:"K",s:"c"},{r:"T",s:"c"},{r:"8",s:"c"},{r:"6",s:"c"},{r:"3",s:"c"}]},
+  {n:6, name:"Стрит", en:"Straight", val:4.62, pct:"4.62%", odds:"1 из 21.6", text:"Пять карт подряд разных мастей. Туз работает и сверху, и снизу: A-2-3-4-5.", cards:[{r:"T",s:"d"},{r:"9",s:"s"},{r:"8",s:"h"},{r:"7",s:"c"},{r:"6",s:"d"}]},
+  {n:7, name:"Сет / Тройка", en:"Three of a Kind", val:4.83, pct:"4.83%", odds:"1 из 20.7", text:"Три карты одного номинала и две несвязанные карты.", cards:[{r:"7",s:"h"},{r:"7",s:"s"},{r:"7",s:"d"},{r:"K",s:"c",dim:true},{r:"2",s:"h",dim:true}]},
+  {n:8, name:"Две пары", en:"Two Pair", val:23.5, pct:"23.5%", odds:"1 из 4.3", text:"Две разные пары. Решает старшая пара, затем младшая, затем кикер.", cards:[{r:"A",s:"d"},{r:"A",s:"c"},{r:"5",s:"s"},{r:"5",s:"h"},{r:"9",s:"d",dim:true}]},
+  {n:9, name:"Пара", en:"One Pair", val:43.8, pct:"43.8%", odds:"1 из 2.3", text:"Две карты одного номинала. При равных парах спор решают кикеры.", cards:[{r:"T",s:"s"},{r:"T",s:"h"},{r:"K",s:"d",dim:true},{r:"7",s:"c",dim:true},{r:"3",s:"s",dim:true}]},
+  {n:10, name:"Старшая карта", en:"High Card", val:17.4, pct:"17.4%", odds:"1 из 5.7", text:"Комбинации нет — играет самая старшая карта на руках.", cards:[{r:"A",s:"h"},{r:"J",s:"s",dim:true},{r:"8",s:"d",dim:true},{r:"5",s:"c",dim:true},{r:"2",s:"h",dim:true}]}
 ];
+function closeEnough(guess, truth){
+  if(Number.isNaN(guess)) return false;
+  if(truth < 0.01) return guess >= 0.001 && guess <= 0.01;
+  if(truth < 0.1) return Math.abs(guess-truth) <= 0.02;
+  if(truth < 1) return Math.abs(guess-truth) <= 0.08;
+  if(truth < 10) return Math.abs(guess-truth) <= 0.8;
+  return Math.abs(guess-truth) <= 2;
+}
+function openQuiz(){
+  quiz = {checked:false, ok:0, guesses:{}};
+  render();
+}
+function readQuizGuesses(){
+  const o = {};
+  COMBOS.forEach(c=>{
+    const el = document.getElementById("q-"+c.n);
+    o[c.n] = el ? el.value : (quiz && quiz.guesses[c.n]) || "";
+  });
+  return o;
+}
+function gradeQuiz(){
+  if(!quiz || quiz.checked) return;
+  quiz.guesses = readQuizGuesses();
+  quiz.ok = 0;
+  COMBOS.forEach(c=>{
+    const g = parseFloat(String(quiz.guesses[c.n]||"").replace(",", ".").replace("%",""));
+    if(closeEnough(g, c.val)) quiz.ok++;
+  });
+  quiz.checked = true;
+  render();
+}
+function quizPanel(){
+  const rows = COMBOS.map(c=>{
+    const guess = quiz.guesses[c.n] || "";
+    const g = parseFloat(String(guess).replace(",", ".").replace("%",""));
+    const cls = !quiz.checked ? "" : closeEnough(g, c.val) ? "ok" : "bad";
+    const hint = quiz.checked ? `<span class="muted">${c.pct}</span>` : `<span class="muted">%</span>`;
+    return `<label class="quiz-row ${cls}">
+      <span class="muted">${c.n}</span>
+      <span>${c.name}</span>
+      <input id="q-${c.n}" inputmode="decimal" placeholder="%" value="${guess}" ${quiz.checked?"disabled":""} />
+    </label><div style="text-align:right;margin:-2px 8px 4px">${hint}</div>`;
+  }).join("");
+  const score = quiz.checked ? `<p class="fb ${quiz.ok===10?"ok":quiz.ok>=7?"mix":"bad"}">${quiz.ok}/10 верно</p>` : "";
+  return `<div>
+    <p style="margin:0 0 6px"><strong>Квиз · вероятности 2+5</strong></p>
+    <p class="muted" style="margin:0 0 10px">Введите % для каждой комбинации. Допуск небольшой.</p>
+    <div class="quiz-list">${rows}</div>
+    ${score}
+    ${quiz.checked
+      ? `<button class="primary" id="quiz-next">Дальше к рукам</button>`
+      : `<button class="primary" id="quiz-check">Проверить</button><button class="ghost" id="quiz-skip">Пропустить</button>`}
+  </div>`;
+}
 function miniCard(c){
   const red = c.s==="h"||c.s==="d";
   const rank = c.r==="T"?"10":c.r;
@@ -282,23 +343,24 @@ function renderPractice(){
   if(lastGrade==="correct"){ fb="Верно"; cls="fb ok"; }
   else if(lastGrade==="mix"){ fb="Микс · чаще "+spot().labels[primary(mix(current))]; cls="fb mix"; }
   else if(lastGrade==="wrong"){ fb="Ошибка · нужно "+spot().labels[primary(mix(current))]; cls="fb bad"; }
-  document.getElementById("view-practice").innerHTML = `
-    <div class="panel">
-      ${spotPills()}
-      <div class="head-row" style="margin-top:12px"><strong>${spot().title}</strong>${legend()}</div>
-      ${gridHtml("strategy", liveHand)}
-    </div>
-    <div class="panel">
+  const right = quiz ? quizPanel() : `
       <div class="head-row">
         <span style="font-family:IBM Plex Mono,monospace;font-size:13px;color:var(--muted)">Сессия ${session.correct}/${session.total} <b style="color:var(--fg)">${pct}%</b>${session.streak>1?` · ${session.streak} подряд`:""}</span>
-        <label class="muted"><input type="checkbox" id="folds" ${includeFolds?"checked":""}/> Включать фолды</label>
+        <label class="muted"><input type="checkbox" id="folds" ${includeFolds?"checked":""}/> Фолды</label>
       </div>
       <div class="cards">${cardHtml(cards&&cards[0],-6)}${cardHtml(cards&&cards[1],7)}</div>
       <div class="${cls}">${fb}</div>
       <p class="muted" style="text-align:center;font-family:IBM Plex Mono,monospace">${current||""}</p>
       ${actionButtons()}
       ${locked?`<div style="margin-top:14px">${mixBars(current)}<button class="ghost" id="next">Следующая рука</button></div>`:""}
-    </div>`;
+      <button class="ghost" id="quiz-now">Квиз вероятностей</button>`;
+  document.getElementById("view-practice").innerHTML = `
+    <div class="panel">
+      ${spotPills()}
+      <div class="head-row" style="margin-top:12px"><strong>${spot().title}</strong>${legend()}</div>
+      ${gridHtml("strategy", liveHand)}
+    </div>
+    <div class="panel">${right}</div>`;
 }
 function renderStats(){
   const o = ss().overall;
@@ -316,7 +378,7 @@ function renderStats(){
 }
 function render(){
   const hdr = document.getElementById("hdr-spot");
-  if(hdr) hdr.textContent = tab==="hands" ? "Комбинации" : spot().title;
+  if(hdr) hdr.textContent = tab==="hands" ? "Комбинации" : (quiz ? "Квиз вероятностей" : spot().title);
   document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("active", b.dataset.tab===tab));
   document.getElementById("view-strategy").hidden = tab!=="strategy";
   document.getElementById("view-practice").hidden = tab!=="practice";
@@ -330,16 +392,19 @@ function render(){
 
 document.addEventListener("click", e=>{
   const t = e.target.closest("[data-tab]");
-  if(t){ tab=t.dataset.tab; if(tab==="practice" && !current) deal(); else render(); return; }
+  if(t){ tab=t.dataset.tab; if(tab==="practice" && !current && !quiz) deal(); else render(); return; }
   const pos = e.target.closest("[data-pos]");
   if(pos){ setSpot(pos.dataset.pos==="btn"?"btn":"sb_fold"); return; }
   const sp = e.target.closest("[data-spot]");
   if(sp){ setSpot(sp.dataset.spot); return; }
   const cell = e.target.closest(".cell");
-  if(cell){ selected=cell.dataset.hand; render(); return; }
+  if(cell && !quiz){ selected=cell.dataset.hand; render(); return; }
   const act = e.target.closest("[data-act]");
   if(act){ answer(act.dataset.act); return; }
-  if(e.target.id==="next"){ deal(); return; }
+  if(e.target.id==="next"){ afterHand(); return; }
+  if(e.target.id==="quiz-now"){ openQuiz(); return; }
+  if(e.target.id==="quiz-check"){ gradeQuiz(); return; }
+  if(e.target.id==="quiz-next" || e.target.id==="quiz-skip"){ deal(); return; }
   if(e.target.id==="reset"){
     if(confirm("Сбросить статистику этого спота?")){
       stats.spots[spotId] = emptySpotStats();
@@ -351,9 +416,9 @@ document.addEventListener("change", e=>{
   if(e.target.id==="folds") includeFolds = e.target.checked;
 });
 document.addEventListener("keydown", e=>{
-  if(tab!=="practice") return;
+  if(tab!=="practice" || quiz) return;
   const map = {f:"fold",F:"fold",c:"call",C:"call",r:"raise",R:"raise",a:"allin",A:"allin"};
   if(map[e.key]) answer(map[e.key]);
-  if((e.key===" "||e.key==="Enter") && locked){ e.preventDefault(); deal(); }
+  if((e.key===" "||e.key==="Enter") && locked){ e.preventDefault(); afterHand(); }
 });
 render();
