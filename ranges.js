@@ -64,16 +64,16 @@ const SBF_MIX = {
 };
 const RANGE_SB_FOLD = Object.assign({}, fill(SBF_RAISE,"raise"), fill(SBF_ALLIN,"allin"), fill(SBF_CALL,"call"), pack(SBF_MIX));
 
-const SBR_ALLIN = ["AA","KK","QQ","JJ","TT","99","88","77","66","55","44","33","22",
-  "AKs","AQs","AJs","ATs","A9s","A8s","A7s","A6s","A5s","A4s","A3s","A2s",
-  "AKo","AQo","AJo","ATo","A9o","A8o",
-  "KQs","KJs","KTs","KQo","KJo","KTo","K9o",
-  "QJs","QTs","JTs","T9s","98s"];
+const SBR_RAISE = ["AA"];
+const SBR_ALLIN = ["AKs","AQs","AJs","ATs","A9s","A8s","A7s","A6s","A5s","A4s","A3s","A2s",
+  "AKo","KK","KQs","KJs","KTs","AQo","KQo","QQ","QJs","Q9s",
+  "AJo","KJo","JJ","J9s","ATo","TT","T9s","A9o","99","98s","88","77","66","55","22"];
 const SBR_MIX = {
-  K9s:{allin:82,raise:18}, Q9s:{allin:80,raise:20}, J9s:{allin:78,raise:22},
-  T8s:{allin:80,raise:20}, QJo:{fold:82,raise:18}, A7o:{fold:78,raise:22}
+  K9s:{allin:93,raise:7}, QTs:{allin:92,raise:8}, JTs:{allin:80,raise:20},
+  T8s:{fold:80,allin:13,raise:7}, A8o:{allin:93,raise:7}, A7o:{fold:93,raise:7},
+  QJo:{fold:95,raise:5}, "44":{allin:96,raise:4}, "33":{allin:99,raise:1}
 };
-const RANGE_SB_RAISE = Object.assign({}, fill(SBR_ALLIN,"allin"), pack(SBR_MIX));
+const RANGE_SB_RAISE = Object.assign({}, fill(SBR_RAISE,"raise"), fill(SBR_ALLIN,"allin"), pack(SBR_MIX));
 
 const SBP_CALL = ["AA","KK","QQ","JJ","TT","99","88","77","66","55","44","33","22",
   "AKs","AQs","AJs","ATs","A9s","A8s","A7s",
