@@ -1,58 +1,100 @@
-const RANKS = ["A","K","Q","J","T","9","8","7","6","5","4","3","2"];
-const LABEL = { fold: "Fold", raise: "Raise 2", allin: "All-in 15" };
-const COLOR = { fold: "var(--fold)", raise: "var(--raise)", allin: "var(--allin)" };
-const PURE_RAISE = ["AA","KK","QQ","JJ","TT","99","88","77","66","AKs","AQs","AJs","ATs","A9s","A8s","A7s","KQs","KJs","KTs","K9s","K8s","K7s","K6s","K5s","Q9s","Q8s","Q7s","J9s","J8s","T8s","98s","97s","87s","86s","AKo","A7o","A6o","A5o","K9o","KTo","QJo","QTo","JTo"];
-const PURE_ALLIN = ["A6s","A5s","A4s","A3s","QTs","JTs","T9s","A9o","A8o","44","33","22"];
-const MIXED = {
-  A2s:{raise:36,allin:64,fold:0}, AQo:{raise:91,allin:9,fold:0}, AJo:{raise:93,allin:7,fold:0},
-  ATo:{raise:23,allin:77,fold:0}, A4o:{raise:81,allin:0,fold:19}, KQo:{raise:57,allin:43,fold:0},
-  KJo:{raise:53,allin:47,fold:0}, QJs:{raise:72,allin:28,fold:0}, Q9o:{raise:27,allin:0,fold:73},
-  J7s:{raise:39,allin:0,fold:61}, T9o:{raise:61,allin:0,fold:39}, T7s:{raise:36,allin:0,fold:64},
-  "76s":{raise:45,allin:0,fold:55}, "55":{raise:53,allin:47,fold:0}
+const SPOTS = {
+  btn: {
+    id:"btn", hero:"BTN", title:"BTN open", detail:"BTN vs SB/BB · 15bb",
+    actions:["fold","raise","allin"],
+    labels:{fold:"Fold", raise:"Raise 2", allin:"All-in 15"},
+    keys:{fold:"F", raise:"R", allin:"A"},
+    range: RANGE_BTN
+  },
+  sb_fold: {
+    id:"sb_fold", hero:"SB", title:"SB vs BTN Fold", detail:"BTN сфолдил · SB vs BB",
+    actions:["fold","call","raise","allin"],
+    labels:{fold:"Fold", call:"Call", raise:"Raise 2.5", allin:"All-in 15"},
+    keys:{fold:"F", call:"C", raise:"R", allin:"A"},
+    range: RANGE_SB_FOLD
+  },
+  sb_raise: {
+    id:"sb_raise", hero:"SB", title:"SB vs BTN Raise 2", detail:"BTN открыл Raise 2",
+    actions:["fold","call","raise","allin"],
+    labels:{fold:"Fold", call:"Call", raise:"Raise 4", allin:"All-in 15"},
+    keys:{fold:"F", call:"C", raise:"R", allin:"A"},
+    range: RANGE_SB_RAISE
+  },
+  sb_push: {
+    id:"sb_push", hero:"SB", title:"SB vs BTN All-in", detail:"BTN запушил All-in 15",
+    actions:["fold","call"],
+    labels:{fold:"Fold", call:"Call"},
+    keys:{fold:"F", call:"C"},
+    range: RANGE_SB_PUSH
+  },
+  sb_limp: {
+    id:"sb_limp", hero:"SB", title:"SB vs BTN Limp", detail:"BTN заколлировал / лимп",
+    actions:["fold","call","raise","allin"],
+    labels:{fold:"Fold", call:"Call", raise:"Raise 4", allin:"All-in 15"},
+    keys:{fold:"F", call:"C", raise:"R", allin:"A"},
+    range: RANGE_SB_LIMP
+  }
 };
-const RANGE = {};
-PURE_RAISE.forEach(h => RANGE[h] = {raise:100,allin:0,fold:0});
-PURE_ALLIN.forEach(h => RANGE[h] = {raise:0,allin:100,fold:0});
-Object.assign(RANGE, MIXED);
 
-function handAt(r,c){ const a=RANKS[r], b=RANKS[c]; if(r===c) return a+b; return c>r ? a+b+"s" : b+a+"o"; }
-function allHands(){ const h=[]; for(let i=0;i<13;i++) for(let j=0;j<13;j++) h.push(handAt(i,j)); return h; }
-const ALL = allHands();
-function mix(h){ return RANGE[h] || {raise:0,allin:0,fold:100}; }
-function primary(m){ if(m.raise>=m.allin && m.raise>=m.fold) return "raise"; if(m.allin>=m.fold) return "allin"; return "fold"; }
-function segs(m){ return ["allin","raise","fold"].map(a=>({a,p:m[a]})).filter(s=>s.p>0); }
-function isMix(m){ return Math.max(m.raise,m.allin,m.fold)<95; }
+let spotId = "btn";
+function spot(){ return SPOTS[spotId]; }
+function mix(h){
+  const m = spot().range[h];
+  if(m) return Object.assign(z(), m);
+  return Object.assign(z(), {fold:100});
+}
+function primary(m){
+  return ORDER.reduce((b,a)=> (m[a]||0) > (m[b]||0) ? a : b, "fold");
+}
+function segs(m){ return ORDER.map(a=>({a,p:m[a]||0})).filter(s=>s.p>0); }
+function isMix(m){ return Math.max(m.fold||0,m.call||0,m.raise||0,m.allin||0) < 95; }
 function grade(h, choice){
-  const m = mix(h), f = m[choice];
+  const m = mix(h), f = m[choice]||0;
   if(f<=0) return "wrong";
   if(choice===primary(m)) return "correct";
   if(f>=20) return "mix";
   return "wrong";
 }
 
-const KEY = "spin-drill-stats-v1";
+const KEY = "spin-drill-stats-v2";
+function emptySpotStats(){ return {overall:{total:0,correct:0},hands:{}}; }
 function loadStats(){
-  try { return JSON.parse(localStorage.getItem(KEY)) || {overall:{total:0,correct:0},hands:{}}; }
-  catch { return {overall:{total:0,correct:0},hands:{}}; }
+  try {
+    const raw = JSON.parse(localStorage.getItem(KEY));
+    if(raw && raw.spots) return raw;
+  } catch {}
+  try {
+    const old = JSON.parse(localStorage.getItem("spin-drill-stats-v1"));
+    if(old) return {spots:{btn: old}};
+  } catch {}
+  return {spots:{}};
 }
 function saveStats(s){ localStorage.setItem(KEY, JSON.stringify(s)); }
 let stats = loadStats();
-
+function ss(){
+  if(!stats.spots[spotId]) stats.spots[spotId] = emptySpotStats();
+  return stats.spots[spotId];
+}
 function record(hand, ok){
-  stats.overall.total++;
-  if(ok) stats.overall.correct++;
-  if(!stats.hands[hand]) stats.hands[hand]={total:0,correct:0};
-  stats.hands[hand].total++;
-  if(ok) stats.hands[hand].correct++;
+  const s = ss();
+  s.overall.total++;
+  if(ok) s.overall.correct++;
+  if(!s.hands[hand]) s.hands[hand]={total:0,correct:0};
+  s.hands[hand].total++;
+  if(ok) s.hands[hand].correct++;
   saveStats(stats);
 }
 
+function legend(){
+  return `<div class="legend">${spot().actions.map(a=>`<span><i class="swatch" style="background:${COLOR[a]}"></i>${spot().labels[a]}</span>`).join("")}</div>`;
+}
 function gridHtml(mode, selected){
+  const s = ss();
   let html = '<div class="grid-wrap"><div class="grid">';
   for(let i=0;i<13;i++) for(let j=0;j<13;j++){
     const h = handAt(i,j), m = mix(h);
-    const bars = segs(m).map(s=>`<i style="width:${s.p}%;background:${COLOR[s.a]}"></i>`).join("");
-    const rec = stats.hands[h];
+    const bars = segs(m).map(x=>`<i style="width:${x.p}%;background:${COLOR[x.a]}"></i>`).join("");
+    const rec = s.hands[h];
     const acc = rec && rec.total ? Math.round(rec.correct/rec.total*100) : null;
     html += `<button class="cell${selected===h?" active":""}" data-hand="${h}">
       <div class="bars">${bars}</div>
@@ -61,28 +103,37 @@ function gridHtml(mode, selected){
   }
   return html + "</div></div>";
 }
-function legend(){
-  return `<div class="legend">
-    <span><i class="swatch" style="background:var(--allin)"></i>All-in 15</span>
-    <span><i class="swatch" style="background:var(--raise)"></i>Raise 2</span>
-    <span><i class="swatch" style="background:var(--fold)"></i>Fold</span>
-  </div>`;
-}
 function mixBars(h){
-  return segs(mix(h)).map(s=>`<div class="mix-row"><div class="top"><span>${LABEL[s.a]}</span><span>${s.p}%</span></div>
+  return segs(mix(h)).map(s=>`<div class="mix-row"><div class="top"><span>${spot().labels[s.a]}</span><span>${s.p}%</span></div>
     <div class="track"><i style="width:${s.p}%;background:${COLOR[s.a]}"></i></div></div>`).join("");
 }
 function inspector(h){
   if(!h) return "<p class='muted'>Нажмите на руку в матрице.</p>";
-  const m = mix(h), rec = stats.hands[h];
+  const m = mix(h), rec = ss().hands[h];
   const acc = rec && rec.total ? Math.round(rec.correct/rec.total*100) : null;
   return `<p style="font-family:IBM Plex Mono,monospace;font-size:18px;font-weight:600;margin:0">${h}</p>
-    <p class="muted">${isMix(m)?"Микс":"Чисто"} · ${LABEL[primary(m)]}</p>
+    <p class="muted">${isMix(m)?"Микс":"Чисто"} · ${spot().labels[primary(m)]}</p>
     ${mixBars(h)}
     <div style="border-top:1px solid var(--border);margin-top:16px;padding-top:12px">
-      <p class="muted" style="margin:0">Ваша статистика</p>
+      <p class="muted" style="margin:0">Статистика спота</p>
       <p>${rec&&rec.total?`${rec.correct}/${rec.total} · ${acc}%`:"Ещё не тренировали"}</p>
     </div>`;
+}
+function spotPills(){
+  const pos = spotId==="btn" ? "btn" : "sb";
+  let html = `<div class="pills">
+    <button data-pos="btn" class="${pos==="btn"?"on":""}">BTN</button>
+    <button data-pos="sb" class="${pos==="sb"?"on":""}">SB</button>
+  </div>`;
+  if(pos==="sb"){
+    html += `<div class="pills" style="margin-top:8px">
+      <button data-spot="sb_fold" class="${spotId==="sb_fold"?"on":""}">vs Fold</button>
+      <button data-spot="sb_raise" class="${spotId==="sb_raise"?"on":""}">vs Raise 2</button>
+      <button data-spot="sb_push" class="${spotId==="sb_push"?"on":""}">vs All-in</button>
+      <button data-spot="sb_limp" class="${spotId==="sb_limp"?"on":""}">vs Limp</button>
+    </div>`;
+  }
+  return html;
 }
 
 let selected = "AA";
@@ -90,7 +141,7 @@ let liveHand = null;
 let tab = "strategy";
 let includeFolds = true;
 let session = {total:0,correct:0,streak:0};
-let current = null, cards = null, locked = false, lastGrade = null, lastChoice = null;
+let current = null, cards = null, locked = false, lastGrade = null;
 
 const SUITS = ["s","h","d","c"];
 const PIP = {
@@ -106,12 +157,13 @@ function dealCombo(hand){
   if(hand.endsWith("s")){ const s=pick(SUITS); return [{rank:r1,suit:s},{rank:r2,suit:s}]; }
   const s1=pick(SUITS), s2=pick(SUITS.filter(s=>s!==s1)); return [{rank:r1,suit:s1},{rank:r2,suit:s2}];
 }
-function playable(){ return ALL.filter(h => mix(h).raise + mix(h).allin > 0); }
+function playable(){ return ALL.filter(h => (mix(h).raise||0)+(mix(h).allin||0)+(mix(h).call||0) > 0); }
 function pickHand(){
   const p = playable();
-  const pool = (!includeFolds || Math.random()<0.62) ? p : ALL;
+  const pool = (!includeFolds || Math.random()<0.62) ? (p.length?p:ALL) : ALL;
+  const s = ss();
   const weights = pool.map(h=>{
-    const rec=stats.hands[h];
+    const rec=s.hands[h];
     if(!rec||!rec.total) return 1.4;
     return 1+(1-rec.correct/rec.total)*3;
   });
@@ -129,17 +181,25 @@ function cardHtml(c, tilt){
     <svg class="pip" viewBox="0 0 24 24"><path fill="currentColor" d="${PIP[c.suit]}"/></svg>
   </div>`;
 }
-
+function setSpot(id){
+  if(!SPOTS[id] || id===spotId) return;
+  spotId = id;
+  session = {total:0,correct:0,streak:0};
+  current = null; cards = null; locked = false; lastGrade = null; liveHand = null;
+  const el = document.getElementById("hdr-spot");
+  if(el) el.textContent = spot().title;
+  if(tab==="practice") deal(); else render();
+}
 function deal(){
   current = pickHand();
   cards = dealCombo(current);
   liveHand = current;
-  locked = false; lastGrade=null; lastChoice=null;
+  locked = false; lastGrade=null;
   render();
 }
 function answer(a){
   if(!current || locked) return;
-  lastChoice = a;
+  if(!spot().actions.includes(a)) return;
   lastGrade = grade(current, a);
   locked = true;
   const ok = lastGrade !== "wrong";
@@ -149,19 +209,27 @@ function answer(a){
   render();
   setTimeout(()=>{ if(locked) deal(); }, 1700);
 }
+function actionButtons(){
+  const n = spot().actions.length;
+  const cls = n===2?"n2":n===4?"n4":"n3";
+  return `<div class="actions ${cls}">${spot().actions.map(a=>
+    `<button class="b-${a}" data-act="${a}" ${locked?"disabled":""}>${spot().labels[a]}<kbd>${spot().keys[a]}</kbd></button>`
+  ).join("")}</div>`;
+}
 
 function renderStrategy(){
   document.getElementById("view-strategy").innerHTML = `
     <div class="panel">
-      <div class="head-row"><div><div class="muted" style="font-family:IBM Plex Mono,monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase">Spin & Go chart</div>
-      <strong>BTN vs SB/BB · 15bb</strong></div>${legend()}</div>
+      ${spotPills()}
+      <div class="head-row" style="margin-top:12px"><div>
+        <div class="muted" style="font-family:IBM Plex Mono,monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase">Spin & Go chart</div>
+        <strong>${spot().detail}</strong></div>${legend()}</div>
       ${gridHtml("strategy", selected)}
     </div>
     <aside class="panel">
-      <div class="pos"><div style="display:flex;justify-content:space-between"><strong>BTN</strong><span style="font-family:IBM Plex Mono,monospace">15</span></div>
-      <ul><li><i class="swatch" style="background:var(--fold)"></i>Fold</li>
-      <li><i class="swatch" style="background:var(--raise)"></i>Raise 2</li>
-      <li><i class="swatch" style="background:var(--allin)"></i>All-in 15</li></ul></div>
+      <div class="pos"><div style="display:flex;justify-content:space-between"><strong>${spot().hero}</strong><span style="font-family:IBM Plex Mono,monospace">15</span></div>
+      <p class="muted" style="margin:8px 0 0">${spot().title}</p>
+      <ul>${spot().actions.map(a=>`<li><i class="swatch" style="background:${COLOR[a]}"></i>${spot().labels[a]}</li>`).join("")}</ul></div>
       ${inspector(selected)}
     </aside>`;
 }
@@ -169,11 +237,12 @@ function renderPractice(){
   const pct = session.total?Math.round(session.correct/session.total*100):0;
   let fb = "Выберите действие", cls="fb";
   if(lastGrade==="correct"){ fb="Верно"; cls="fb ok"; }
-  else if(lastGrade==="mix"){ fb="Микс · чаще "+LABEL[primary(mix(current))]; cls="fb mix"; }
-  else if(lastGrade==="wrong"){ fb="Ошибка · нужно "+LABEL[primary(mix(current))]; cls="fb bad"; }
+  else if(lastGrade==="mix"){ fb="Микс · чаще "+spot().labels[primary(mix(current))]; cls="fb mix"; }
+  else if(lastGrade==="wrong"){ fb="Ошибка · нужно "+spot().labels[primary(mix(current))]; cls="fb bad"; }
   document.getElementById("view-practice").innerHTML = `
     <div class="panel">
-      <div class="head-row"><strong>BTN 15 · open</strong>${legend()}</div>
+      ${spotPills()}
+      <div class="head-row" style="margin-top:12px"><strong>${spot().title}</strong>${legend()}</div>
       ${gridHtml("strategy", liveHand)}
     </div>
     <div class="panel">
@@ -184,29 +253,27 @@ function renderPractice(){
       <div class="cards">${cardHtml(cards&&cards[0],-6)}${cardHtml(cards&&cards[1],7)}</div>
       <div class="${cls}">${fb}</div>
       <p class="muted" style="text-align:center;font-family:IBM Plex Mono,monospace">${current||""}</p>
-      <div class="actions">
-        <button class="b-fold" data-act="fold" ${locked?"disabled":""}>Fold<kbd>F</kbd></button>
-        <button class="b-raise" data-act="raise" ${locked?"disabled":""}>Raise 2<kbd>R</kbd></button>
-        <button class="b-allin" data-act="allin" ${locked?"disabled":""}>All-in 15<kbd>A</kbd></button>
-      </div>
+      ${actionButtons()}
       ${locked?`<div style="margin-top:14px">${mixBars(current)}<button class="ghost" id="next">Следующая рука</button></div>`:""}
     </div>`;
 }
 function renderStats(){
-  const o = stats.overall;
+  const o = ss().overall;
   const pct = o.total? (o.correct/o.total*100).toFixed(1): "—";
   document.getElementById("view-stats").innerHTML = `
     <div class="panel">
-      <div class="head-row">
-        <div><strong>Точность по рукам</strong><p class="muted" style="margin:4px 0 0">Всего ${o.total} · верно ${o.correct} · ${pct}%</p></div>
-        <button class="danger" id="reset">Сбросить</button>
+      ${spotPills()}
+      <div class="head-row" style="margin-top:12px">
+        <div><strong>Точность · ${spot().title}</strong><p class="muted" style="margin:4px 0 0">Всего ${o.total} · верно ${o.correct} · ${pct}%</p></div>
+        <button class="danger" id="reset">Сбросить спот</button>
       </div>
       ${gridHtml("stats", selected)}
     </div>
     <aside class="panel">${inspector(selected)}</aside>`;
 }
-
 function render(){
+  const hdr = document.getElementById("hdr-spot");
+  if(hdr) hdr.textContent = spot().title;
   document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("active", b.dataset.tab===tab));
   document.getElementById("view-strategy").hidden = tab!=="strategy";
   document.getElementById("view-practice").hidden = tab!=="practice";
@@ -219,21 +286,29 @@ function render(){
 document.addEventListener("click", e=>{
   const t = e.target.closest("[data-tab]");
   if(t){ tab=t.dataset.tab; if(tab==="practice" && !current) deal(); else render(); return; }
+  const pos = e.target.closest("[data-pos]");
+  if(pos){ setSpot(pos.dataset.pos==="btn"?"btn":"sb_fold"); return; }
+  const sp = e.target.closest("[data-spot]");
+  if(sp){ setSpot(sp.dataset.spot); return; }
   const cell = e.target.closest(".cell");
   if(cell){ selected=cell.dataset.hand; render(); return; }
   const act = e.target.closest("[data-act]");
   if(act){ answer(act.dataset.act); return; }
   if(e.target.id==="next"){ deal(); return; }
-  if(e.target.id==="reset"){ if(confirm("Сбросить всю статистику?")){ stats={overall:{total:0,correct:0},hands:{}}; saveStats(stats); render(); } }
+  if(e.target.id==="reset"){
+    if(confirm("Сбросить статистику этого спота?")){
+      stats.spots[spotId] = emptySpotStats();
+      saveStats(stats); render();
+    }
+  }
 });
 document.addEventListener("change", e=>{
   if(e.target.id==="folds") includeFolds = e.target.checked;
 });
 document.addEventListener("keydown", e=>{
   if(tab!=="practice") return;
-  if(e.key==="f"||e.key==="F") answer("fold");
-  if(e.key==="r"||e.key==="R") answer("raise");
-  if(e.key==="a"||e.key==="A") answer("allin");
+  const map = {f:"fold",F:"fold",c:"call",C:"call",r:"raise",R:"raise",a:"allin",A:"allin"};
+  if(map[e.key]) answer(map[e.key]);
   if((e.key===" "||e.key==="Enter") && locked){ e.preventDefault(); deal(); }
 });
 render();
