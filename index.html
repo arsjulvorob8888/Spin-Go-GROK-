@@ -78,17 +78,12 @@
       display: grid; grid-template-columns: 48px 1fr; gap: 12px 16px; align-items: center;
       background: var(--surface-2); border: 1px solid var(--border); border-radius: 14px; padding: 12px 14px;
     }
-    @media (min-width: 720px) {
-      .combo { grid-template-columns: 48px 180px 1fr 1.2fr; }
-    }
+    @media (min-width: 720px) { .combo { grid-template-columns: 48px 180px 1fr 1.2fr; } }
     .combo .n { font-family: "IBM Plex Mono", monospace; font-size: 28px; font-weight: 600; color: #e25555; line-height: 1; }
     .combo h3 { margin: 0; font-size: 16px; font-weight: 600; }
     .combo h3 small { display: block; color: var(--subtle); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; font-family: "IBM Plex Mono", monospace; }
     .mini-cards { display: flex; gap: 6px; flex-wrap: wrap; }
-    .mc {
-      width: 42px; height: 58px; background: var(--card); color: var(--ink); border-radius: 6px;
-      position: relative; font-family: "IBM Plex Mono", monospace; font-weight: 600; font-size: 13px;
-    }
+    .mc { width: 42px; height: 58px; background: var(--card); color: var(--ink); border-radius: 6px; position: relative; font-family: "IBM Plex Mono", monospace; font-weight: 600; font-size: 13px; }
     .mc.dim { background: #3a3a40; color: #c8c8cc; }
     .mc .r { position: absolute; top: 4px; left: 5px; line-height: 1; }
     .mc .s { position: absolute; right: 5px; bottom: 4px; font-size: 14px; }
@@ -97,21 +92,40 @@
     @media (min-width: 720px) { .combo-notes { grid-template-columns: 1fr 1fr; } }
     .combo-notes div { border-left: 3px solid #e25555; padding: 8px 12px; color: var(--muted); font-size: 13px; }
     .quiz-list { display: grid; gap: 6px; }
-    .quiz-row {
-      display: grid; grid-template-columns: 28px 1fr 88px; gap: 8px; align-items: center;
-      background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px; padding: 6px 8px;
-    }
-    .quiz-row.ok { border-color: var(--ok); }
-    .quiz-row.bad { border-color: var(--bad); }
-    .quiz-row input {
-      width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--fg);
-      border-radius: 8px; padding: 8px 6px; font-family: "IBM Plex Mono", monospace; font-size: 13px;
-    }
-    .quiz-row input:disabled { opacity: .85; }
-    .primary {
-      width: 100%; border: 0; border-radius: 10px; padding: 12px; margin-top: 10px;
-      background: var(--fg); color: var(--bg); font-weight: 600;
-    }
+    .quiz-row { display: grid; grid-template-columns: 28px 1fr 88px; gap: 8px; align-items: center; background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px; padding: 6px 8px; }
+    .quiz-row.ok { border-color: var(--ok); } .quiz-row.bad { border-color: var(--bad); }
+    .quiz-row input { width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--fg); border-radius: 8px; padding: 8px 6px; font-family: "IBM Plex Mono", monospace; font-size: 13px; }
+    .primary { width: 100%; border: 0; border-radius: 10px; padding: 12px; margin-top: 10px; background: var(--fg); color: var(--bg); font-weight: 600; }
+    .m-hero { display: grid; gap: 16px; margin-bottom: 18px; padding: 8px 4px 16px; border-bottom: 1px solid var(--border); }
+    @media (min-width: 800px) { .m-hero { grid-template-columns: 1.4fr .8fr; align-items: start; } }
+    .m-hero h2 { margin: 8px 0; font-size: 28px; font-weight: 500; }
+    .m-hero p { color: var(--muted); line-height: 1.55; }
+    .m-toc { margin: 0; padding: 14px 14px 14px 36px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 14px; color: var(--muted); }
+    .m-toc li { margin: 6px 0; }
+    .m-card { display: grid; grid-template-columns: 56px 1fr; gap: 14px; padding: 16px 8px; border-top: 1px solid var(--border); }
+    .m-n { font-family: "IBM Plex Mono", monospace; font-size: 22px; color: #e25555; font-weight: 600; }
+    .m-card h3 { margin: 0 0 8px; font-size: 18px; }
+    .m-card p { color: var(--muted); line-height: 1.55; }
+    .m-formula { font-family: "IBM Plex Mono", monospace; background: #101014; border: 1px solid var(--border); border-left: 3px solid #e25555; border-radius: 10px; padding: 12px 14px; margin: 10px 0; color: var(--fg); }
+    .m-ex { background: var(--surface-2); border-radius: 12px; padding: 12px 14px; color: var(--muted); line-height: 1.5; }
+    .m-ex strong { color: var(--fg); }
+    .m-grid2 { display: grid; gap: 10px; margin: 10px 0; }
+    @media (min-width: 800px) { .m-grid2 { grid-template-columns: 1fr 1fr; } }
+    .m-apply { color: var(--fg) !important; }
+    .m-steps { color: var(--muted); line-height: 1.55; }
+    .m-table-wrap { overflow-x: auto; margin: 10px 0; }
+    .m-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .m-table th { text-align: left; color: var(--subtle); font-weight: 500; padding: 8px; border-bottom: 1px solid var(--border); }
+    .m-table td { padding: 8px; border-bottom: 1px solid var(--border); font-family: "IBM Plex Mono", monospace; }
+    .m-calc-grid { display: grid; gap: 10px; margin: 12px 0; }
+    @media (min-width: 700px) { .m-calc-grid { grid-template-columns: 1fr 1fr 1fr; } }
+    .m-calc-grid label { display: grid; gap: 6px; font-size: 12px; color: var(--muted); }
+    .m-calc-grid input { background: var(--bg); border: 1px solid var(--border); color: var(--fg); border-radius: 8px; padding: 10px; font-family: "IBM Plex Mono", monospace; }
+    .m-result { border-radius: 14px; padding: 14px; margin-top: 8px; background: var(--surface-2); }
+    .m-result.ok { border: 1px solid var(--ok); } .m-result.bad { border: 1px solid var(--bad); }
+    .m-kpi { font-family: "IBM Plex Mono", monospace; font-size: 36px; font-weight: 600; }
+    .m-check { color: var(--muted); line-height: 1.6; }
+    .m-check li { margin: 8px 0; }
   </style>
 </head>
 <body>
@@ -124,6 +138,7 @@
       <button data-tab="practice">Тренировка</button>
       <button data-tab="strategy" class="active">Стратегия</button>
       <button data-tab="hands">Комбинации</button>
+      <button data-tab="math">Математика</button>
       <button data-tab="stats">Статистика</button>
     </nav>
   </header>
@@ -131,9 +146,28 @@
     <section id="view-strategy" class="row strategy"></section>
     <section id="view-practice" class="row practice" hidden></section>
     <section id="view-hands" class="row hands" hidden></section>
+    <section id="view-math" class="row math" hidden></section>
     <section id="view-stats" class="row stats" hidden></section>
   </main>
   <script src="./ranges.js"></script>
+  <script src="./math.js"></script>
   <script src="./app.js"></script>
+  <script>
+    (function(){
+      const orig = render;
+      render = function(){
+        orig();
+        const math = document.getElementById("view-math");
+        if(!math) return;
+        math.hidden = tab !== "math";
+        if(tab === "math"){
+          document.querySelectorAll("nav button").forEach(b => b.classList.toggle("active", b.dataset.tab === tab));
+          const hdr = document.getElementById("hdr-spot");
+          if(hdr) hdr.textContent = "Математика";
+          renderMath();
+        }
+      };
+    })();
+  </script>
 </body>
 </html>
